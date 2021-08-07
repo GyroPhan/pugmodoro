@@ -13,7 +13,8 @@ LinearGradient kTextPressColor = LinearGradient(
       Color(0xffE94057),
       Color(0xffF27121),
     ]);
-LinearGradient kTextDefaultColor = LinearGradient(
+
+LinearGradient kTextColor = LinearGradient(
     end: Alignment.bottomLeft,
     begin: Alignment.topRight,
     colors: [
@@ -27,11 +28,12 @@ class GradientText extends StatelessWidget {
   GradientText({
     required this.text,
     required this.gradient,
+    this.fontSize = 50,
   });
 
   final String text;
   final Gradient gradient;
-
+  final double fontSize;
   @override
   Widget build(BuildContext context) {
     return ShaderMask(
@@ -43,7 +45,7 @@ class GradientText extends StatelessWidget {
         style: TextStyle(
           // The color must be set to white for this to work
           color: Colors.white,
-          fontSize: 50,
+          fontSize: fontSize,
           fontFamily: 'Gum',
         ),
       ),

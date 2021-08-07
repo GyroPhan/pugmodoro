@@ -1,8 +1,9 @@
-import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:audioplayer/audioplayer.dart';
+import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:clay_containers/constants.dart';
 import 'package:pugmodoro/constans.dart';
 
@@ -14,18 +15,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController animation1Controller;
   late AnimationController animation2Controller;
+  late AnimationController animation3Controller;
 
   late Animation<double> anim1;
   late Animation<double> anim2;
+  late Animation<double> anim3;
 
+  final player = AudioPlayer();
   double percent = 0;
-  int minu = 5;
+  int minu = 25;
 
   late Timer timer;
   bool isPress = false;
-
+  bool isFinish = false;
   _startTimer() {
-    print('Start timer ${minu}');
+    isFinish = false;
     int sec = minu * 60;
     double secPercent = (sec / 100);
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -45,8 +49,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           }
         } else {
           isPress = false;
+          isFinish = true;
           percent = 0;
-          minu = 5;
+          minu = 25;
           timer.cancel();
         }
       });
@@ -90,6 +95,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             }
           });
     animation2Controller.forward();
+    //animation 3
+    animation3Controller =
+        AnimationController(duration: Duration(seconds: 5), vsync: this);
+    anim3 = Tween<double>(begin: 0, end: 30).animate(animation2Controller)
+      ..addListener(() {
+        setState(() {});
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          animation2Controller.repeat();
+        }
+      });
   }
 
   @override
@@ -116,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    height: height - 200,
+                    height: height - 230,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -172,14 +189,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
+                  Container(
+                    height: 50,
+                    child: GradientText(
+                      fontSize: isFinish ? anim3.value : 0,
+                      gradient: kTextColor,
+                      text: 'FINISH',
+                    ),
+                  ),
+                  SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            minu = minu - 5;
-                            print(minu);
+                            if (minu > 5) {
+                              minu = minu - 5;
+                            }
                           });
                         },
                         child: ClayContainer(
@@ -201,7 +228,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         onTap: () {
                           setState(() {
                             minu = minu + 5;
-                            print(minu);
                           });
                         },
                         child: ClayContainer(
