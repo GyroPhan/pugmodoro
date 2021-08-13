@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:audioplayer/audioplayer.dart';
+
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:clay_containers/constants.dart';
 import 'package:pugmodoro/constans.dart';
@@ -13,6 +14,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  //////////////////////////////////////////////////////////
+  FlutterLocalNotificationsPlugin localNotifications =
+      FlutterLocalNotificationsPlugin();
+
+  Future _showNoti() async {
+    var androidDetails = AndroidNotificationDetails(
+        'ChannelID', 'Local Noti', "Can write anything");
+    var iosDetails = IOSNotificationDetails();
+    var generalDetail =
+        NotificationDetails(iOS: iosDetails, android: androidDetails);
+    await localNotifications.show(0, 'Finished',
+        '🐶🐶🐶 Congratulations you finished 🐶🐶🐶', generalDetail);
+  }
+  //////////////////////////////////////////////////////////
+
   late AnimationController animation1Controller;
   late AnimationController animation2Controller;
   late AnimationController animation3Controller;
@@ -21,13 +37,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> anim2;
   late Animation<double> anim3;
 
-  final player = AudioPlayer();
   double percent = 0;
-  int minu = 25;
+  int minu = 1;
 
   late Timer timer;
   bool isPress = false;
   bool isFinish = false;
+  //////////////////////////////////////////////////////////  //////////////////////////////////////////////////////////
+
   _startTimer() {
     isFinish = false;
     int sec = minu * 60;
@@ -43,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           if (sec % secPercent == 0) {
             if (percent < 0.99) {
               percent += 0.01;
+              print(minu);
             } else {
               percent = 0.99;
             }
@@ -51,17 +69,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           isPress = false;
           isFinish = true;
           percent = 0;
-          minu = 25;
+          minu = 1;
+          _showNoti();
           timer.cancel();
         }
       });
     });
   }
 
+  _stopTimer() {
+    isPress = false;
+    isFinish = true;
+    percent = 0;
+    minu = 1;
+    timer.cancel();
+  }
+  //////////////////////////////////////////////////////////  //////////////////////////////////////////////////////////
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    //////////////////////////////////////////////////////////  //////////////////////////////////////////////////////////
+
     //animation 1
     animation1Controller =
         AnimationController(duration: Duration(seconds: 5), vsync: this);
@@ -107,6 +136,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           animation2Controller.repeat();
         }
       });
+    //////////////////////////////////////////////////////////  //////////////////////////////////////////////////////////
+    var androidInitialize = AndroidInitializationSettings('ic_launcher');
+    var iOSInitialize = IOSInitializationSettings();
+    var initializationSettings =
+        InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+    localNotifications.initialize(initializationSettings);
   }
 
   @override
@@ -133,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    height: height - 230,
+                    height: height - 400,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
@@ -189,6 +224,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ],
                     ),
                   ),
+                  _buildButton(),
+                  SizedBox(
+                    height: 40,
+                  ),
                   Container(
                     height: 50,
                     child: GradientText(
@@ -197,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       text: 'FINISH',
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 40),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
@@ -255,5 +294,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Widget _buildButton() {
+    return isPress
+        ? GestureDetector(
+            onTap: () {
+              _stopTimer();
+            },
+            child: ClayContainer(
+              color: baseColor,
+              height: 50,
+              width: 150,
+              borderRadius: 300,
+              curveType: CurveType.none,
+              child: Center(
+                child: GradientText(
+                  fontSize: 25,
+                  gradient: kTextColor,
+                  text: 'Stop',
+                ),
+              ),
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              _startTimer();
+            },
+            child: ClayContainer(
+              color: baseColor,
+              height: 50,
+              width: 150,
+              borderRadius: 300,
+              curveType: CurveType.none,
+              child: Center(
+                child: GradientText(
+                  fontSize: 30,
+                  gradient: kTextColor,
+                  text: 'Start',
+                ),
+              ),
+            ),
+          );
   }
 }
