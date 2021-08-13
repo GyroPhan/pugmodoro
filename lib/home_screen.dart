@@ -155,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    double heightOfClock = height - 360;
     return Container(
       decoration: BoxDecoration(
         gradient: kBackgroundColor,
@@ -162,132 +163,137 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SingleChildScrollView(
-          child: Container(
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    height: height - 400,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        ClayContainer(
-                          color: baseColor,
-                          height: 300,
-                          width: 300,
-                          borderRadius: 300,
-                          curveType: CurveType.none,
-                        ),
-                        CircularPercentIndicator(
-                          backgroundColor: Colors.transparent,
-                          radius: 270,
-                          lineWidth: 25,
-                          animation: true,
-                          animationDuration: 2500,
-                          percent: percent, // percent use
-                          animateFromLastPercent: true,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Container(
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: heightOfClock,
+                      margin: EdgeInsets.symmetric(vertical: 20),
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          ClayContainer(
+                            color: baseColor,
+                            height: heightOfClock - 40,
+                            width: heightOfClock - 40,
+                            borderRadius: 300,
+                            curveType: CurveType.none,
+                          ),
+                          CircularPercentIndicator(
+                            backgroundColor: Colors.transparent,
+                            radius: 270,
+                            lineWidth: 25,
+                            animation: true,
+                            animationDuration: 2500,
+                            percent: percent, // percent use
+                            animateFromLastPercent: true,
 
-                          circularStrokeCap: CircularStrokeCap.round,
-                          widgetIndicator: Transform.rotate(
-                            angle: isPress ? anim2.value : 0,
-                            child: Container(
-                              child: Image.asset('assets/bone.png'),
+                            circularStrokeCap: CircularStrokeCap.round,
+                            widgetIndicator: Transform.rotate(
+                              angle: isPress ? anim2.value : 0,
+                              child: Container(
+                                child: Image.asset('assets/bone.png'),
+                              ),
+                            ),
+                            maskFilter: MaskFilter.blur(BlurStyle.solid, 3),
+                            linearGradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.orange, Colors.yellow],
                             ),
                           ),
-                          maskFilter: MaskFilter.blur(BlurStyle.solid, 3),
-                          linearGradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Colors.orange, Colors.yellow],
+                          ClayContainer(
+                            color: baseColor,
+                            height: 180,
+                            width: 180,
+                            borderRadius: 300,
+                            emboss: false,
+                            curveType:
+                                isPress ? CurveType.concave : CurveType.convex,
+                          ),
+                          GestureDetector(
+                            onTap: _startTimer,
+                            child: Transform.rotate(
+                              angle: isPress ? anim1.value : 0,
+                              child: Container(
+                                height: 100,
+                                child: Image.asset('assets/pug_icon.png'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _buildButton(),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Container(
+                      height: 50,
+                      child: GradientText(
+                        fontSize: isFinish ? anim3.value : 0,
+                        gradient: kTextColor,
+                        text: 'FINISH',
+                      ),
+                    ),
+                    SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (minu > 5) {
+                                minu = minu - 5;
+                              }
+                            });
+                          },
+                          child: ClayContainer(
+                            color: baseColor,
+                            height: 60,
+                            width: 60,
+                            borderRadius: 75,
+                            curveType: CurveType.convex,
+                            child: Icon(
+                              Icons.arrow_left_outlined,
+                              size: 50,
+                              color: Colors.redAccent,
+                            ),
                           ),
                         ),
-                        ClayContainer(
-                          color: baseColor,
-                          height: 180,
-                          width: 180,
-                          borderRadius: 300,
-                          emboss: false,
-                          curveType:
-                              isPress ? CurveType.concave : CurveType.convex,
-                        ),
+                        GradientText(
+                            text: minu.toString(), gradient: kTextPressColor),
                         GestureDetector(
-                          onTap: _startTimer,
-                          child: Transform.rotate(
-                            angle: isPress ? anim1.value : 0,
-                            child: Container(
-                              height: 100,
-                              child: Image.asset('assets/pug_icon.png'),
+                          onTap: () {
+                            setState(() {
+                              minu = minu + 5;
+                            });
+                          },
+                          child: ClayContainer(
+                            color: baseColor,
+                            height: 60,
+                            width: 60,
+                            borderRadius: 75,
+                            curveType: CurveType.convex,
+                            child: Icon(
+                              Icons.arrow_right,
+                              size: 50,
+                              color: Colors.redAccent,
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  _buildButton(),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Container(
-                    height: 50,
-                    child: GradientText(
-                      fontSize: isFinish ? anim3.value : 0,
-                      gradient: kTextColor,
-                      text: 'FINISH',
+                    SizedBox(
+                      height: 40,
                     ),
-                  ),
-                  SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (minu > 5) {
-                              minu = minu - 5;
-                            }
-                          });
-                        },
-                        child: ClayContainer(
-                          color: baseColor,
-                          height: 60,
-                          width: 60,
-                          borderRadius: 75,
-                          curveType: CurveType.convex,
-                          child: Icon(
-                            Icons.arrow_left_outlined,
-                            size: 50,
-                            color: Colors.redAccent,
-                          ),
-                        ),
-                      ),
-                      GradientText(
-                          text: minu.toString(), gradient: kTextPressColor),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            minu = minu + 5;
-                          });
-                        },
-                        child: ClayContainer(
-                          color: baseColor,
-                          height: 60,
-                          width: 60,
-                          borderRadius: 75,
-                          curveType: CurveType.convex,
-                          child: Icon(
-                            Icons.arrow_right,
-                            size: 50,
-                            color: Colors.redAccent,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
